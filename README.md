@@ -24,7 +24,7 @@ This guide serves as a roadmap for learning Django step-by-step. Each section co
    ```
 2. Create a new Django project:
    ```bash
-   django-admin startproject myproject
+   django-admin startproject inventory_manage
    cd myproject
    ```
 3. Run the development server:
