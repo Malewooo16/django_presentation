@@ -1,0 +1,72 @@
+{% extends 'inventory/base.html' %}
+{% load static tailwind_tags %}
+{% load widget_tweaks %}
+
+
+{% block title %}Product Form{% endblock %}
+
+{% if form.errors %}
+    <pre>{{ form.errors }}</pre>
+{% endif %}
+
+{% block content %}
+<h1 class="text-2xl font-semibold mb-6">
+    {% if product %}Edit Product{% else %}Add New Product{% endif %}
+</h1>
+
+<form method="POST" class="bg-white p-6 rounded-lg shadow-lg">
+    {% csrf_token %}
+    
+    <div class="mb-4">
+        <label for="id_name" class="block text-sm font-medium text-gray-700">Product Name</label>
+        {{ form.name|add_class:"form-input mt-1 block w-full" }}
+        {% if form.name.errors %}
+            <ul class="text-red-600 mt-2">
+                {% for error in form.name.errors %}
+                    <li class="text-sm">{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+
+    <div class="mb-4">
+        <label for="id_category" class="block text-sm font-medium text-gray-700">Category</label>
+        {{ form.category|add_class:"form-select mt-1 block w-full" }}
+        {% if form.category.errors %}
+            <ul class="text-red-600 mt-2">
+                {% for error in form.category.errors %}
+                    <li class="text-sm">{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+
+    <div class="mb-4">
+        <label for="id_price" class="block text-sm font-medium text-gray-700">Price</label>
+        {{ form.price|add_class:"form-input mt-1 block w-full" }}
+        {% if form.price.errors %}
+            <ul class="text-red-600 mt-2">
+                {% for error in form.price.errors %}
+                    <li class="text-sm">{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+
+    <div class="mb-4">
+        <label for="id_quantity" class="block text-sm font-medium text-gray-700">quantity Quantity</label>
+        {{ form.quantity|add_class:"form-input mt-1 block w-full" }}
+        {% if form.quantity.errors %}
+            <ul class="text-red-600 mt-2">
+                {% for error in form.quantity.errors %}
+                    <li class="text-sm">{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+
+    <button type="submit" class="w-full bg-blue-900 text-white py-2 rounded-lg hover:bg-blue-700">
+        {% if product %}Update{% else %}Create{% endif %}
+    </button>
+</form>
+{% endblock %}

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Inventory Management{% endblock %}</title>
+    {% load static %}
+    <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Navbar -->
+    <nav class="bg-blue-900 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-lg font-semibold">
+                <a href="{% url 'home' %}" class="hover:text-gray-200">Inventory Management</a>
+            </h1>
+            <div>
+                <a href="{% url 'category-list' %}" class="px-4 py-2 hover:bg-blue-700 rounded">Categories</a>
+                <a href="{% url 'product-list' %}" class="px-4 py-2 hover:bg-blue-700 rounded">Products</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <main class="container mx-auto p-6">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+</body>
+</html>
