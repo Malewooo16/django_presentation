@@ -1,4 +1,6 @@
 from django.contrib import admin
+
+from inventory.permissions import assign_store_manager_permissions
 from .models import Category, Product, Store
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
@@ -12,7 +14,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'price', 'quantity', 'is_low_stock')
+    list_display = ('name', 'category',)
     list_filter = ('category',)
     search_fields = ('name', 'category__name')
 
@@ -23,3 +25,4 @@ class StoreAdmin(admin.ModelAdmin):
 
 
 
+##assign_store_manager_permissions()

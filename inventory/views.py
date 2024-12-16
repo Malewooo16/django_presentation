@@ -2,8 +2,8 @@
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from inventory.forms import ProductUpdateForm
-from .models import Category, Product
+from inventory.forms import ProductCreateForm, ProductUpdateForm
+from .models import Category, Product, Store
 from django.core.exceptions import PermissionDenied
 
 # Home page view
@@ -34,12 +34,39 @@ class ProductListView(ListView):
     template_name = 'inventory/product_list.html'
     context_object_name = 'products'
 
+from django.shortcuts import redirect
+from django.urls import reverse_lazy
+from django.contrib import messages
+from .models import Product, StoreProduct, Store
+
 class ProductCreateView(CreateView):
     model = Product
+    fields = ['name', 'category', 'description']
     template_name = 'inventory/product_form.html'
-    fields = ['name', 'category', 'price', 'description', 'quantity']  # Replace with your Product model fields
-    success_url = reverse_lazy('product-list')
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+
+        # After the product is created, we need to create StoreProduct instances for all stores
+        product = self.object  # This is the product just created
+
+        # Fetch all stores
+        stores = Store.objects.all()
+
+        for store in stores:
+            # Create a StoreProduct instance for each store, with default price and quantity
+            StoreProduct.objects.create(
+                store=store,
+                product=product,
+                price=10.00,  # Default price (you can modify this)
+                quantity=100,  # Default quantity (you can modify this)
+            )
+
+        messages.success(self.request, "Product created successfully and added to all stores.")
+        return redirect('product-list')  # Redirect to a success page or wherever you need
+
+    def get_success_url(self):
+        return reverse_lazy('product-list')
 
 class ProductUpdateView(UpdateView):
     model = Product
@@ -50,25 +77,20 @@ class ProductUpdateView(UpdateView):
     def get_object(self):
         # Only allow access to products within the store of the logged-in user
         product = super().get_object()
-        store = product.store
-        if self.request.user != store.owner:
-            # Check if the user is a store manager for this store
-            if not self.request.user.groups.filter(name='Store Manager', store=store).exists():
-                raise PermissionDenied("You do not have permission to edit this product.")
+        stores = product.stores
+       
         return product
 
     def form_valid(self, form):
         # Only update stock and price, not category
         product = form.save(commit=False)
-        if 'stock_quantity' in form.changed_data:
-            product.stock_quantity = form.cleaned_data['stock_quantity']
-        if 'price' in form.changed_data:
-            product.price = form.cleaned_data['price']
+        if 'name' in form.changed_data:
+            product.name = form.cleaned_data['name']
         product.save()
         return redirect('product-list')
     
 
 class ProductDeleteView(DeleteView):
     model = Product
-    template_name = 'inventory/product_confirm_delete.html'
-    success_url = reverse_lazy('product_list')
+    template_name = 'inventory/product_delete.html'
+    success_url = reverse_lazy('product-list')

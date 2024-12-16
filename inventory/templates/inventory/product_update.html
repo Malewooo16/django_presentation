@@ -1,0 +1,68 @@
+{% extends 'inventory/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block title %}Update Product{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-6">
+    <h1 class="text-3xl font-semibold mb-6">Update Product</h1>
+
+    <form method="POST" class="bg-white p-6 rounded-lg shadow-md">
+        {% csrf_token %}
+        
+        <div class="mb-4">
+            <label for="id_name" class="block text-sm font-medium text-gray-700">Product Name</label>
+            {{ form.name|add_class:"form-input mt-1 block w-full" }}
+            {% if form.name.errors %}
+                <ul class="text-red-600 mt-2">
+                    {% for error in form.name.errors %}
+                        <li class="text-sm">{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div class="mb-4">
+            <label for="id_category" class="block text-sm font-medium text-gray-700">Category</label>
+            {{ form.category|add_class:"form-input mt-1 block w-full" }}
+            {% if form.category.errors %}
+                <ul class="text-red-600 mt-2">
+                    {% for error in form.category.errors %}
+                        <li class="text-sm">{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div class="mb-4">
+            <label for="id_price" class="block text-sm font-medium text-gray-700">Price</label>
+            {{ form.price|add_class:"form-input mt-1 block w-full" }}
+            {% if form.price.errors %}
+                <ul class="text-red-600 mt-2">
+                    {% for error in form.price.errors %}
+                        <li class="text-sm">{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div class="mb-4">
+            <label for="id_quantity" class="block text-sm font-medium text-gray-700">Quantity</label>
+            {{ form.quantity|add_class:"form-input mt-1 block w-full" }}
+            {% if form.quantity.errors %}
+                <ul class="text-red-600 mt-2">
+                    {% for error in form.quantity.errors %}
+                        <li class="text-sm">{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div class="flex justify-end mt-6">
+            <button type="submit" class="w-full sm:w-auto bg-blue-900 text-white py-2 px-6 rounded-lg hover:bg-blue-700">
+                Update Product
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

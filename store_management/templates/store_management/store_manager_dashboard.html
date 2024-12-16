@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Manager Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto py-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Store Manager Dashboard</h1>
+        <div class="bg-white shadow-lg rounded-lg p-6">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Products</h2>
+            {% if products %}
+            <table class="min-w-full border-collapse border border-gray-300">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Name</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Category</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Price</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Quantity</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                        <tr class="bg-white hover:bg-gray-50">
+                            <td class="border border-gray-300 px-4 py-2">{{ product.name }}</td>
+                            <td class="border border-gray-300 px-4 py-2">{{ product.category.name }}</td>
+                            <td class="border border-gray-300 px-4 py-2">
+                                {% for store_product in product.store_products.all %}
+                                    {% if store_product.store == store %}
+                                        {{ store_product.price }}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td class="border border-gray-300 px-4 py-2">
+                                {% for store_product in product.store_products.all %}
+                                    {% if store_product.store == store %}
+                                        {{ store_product.quantity }}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td class="border border-gray-300 px-4 py-2">
+                                <a href="{% url 'update_product' product.id %}" class="text-blue-600 hover:underline">
+                                    Update
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-gray-600">No products available for this store.</p>
+            {% endif %}
+        </div>
+        <a href="{% url 'logout' %}" class="mt-6 inline-block text-blue-600 hover:underline">Logout</a>
+    </div>
+</body>
+</html>
