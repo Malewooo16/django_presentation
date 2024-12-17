@@ -1,45 +1,70 @@
-
-from django.shortcuts import render, redirect
-from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import reverse_lazy
-from inventory.forms import ProductCreateForm, ProductUpdateForm
-from .models import Category, Product, Store
+from django.shortcuts import redirect
+from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.contrib.auth.mixins import AccessMixin
+
+from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView
+from .models import Category, Product, Store, StoreProduct
+from inventory.forms import ProductUpdateForm
+
+
+# Custom Mixin to restrict access to superusers
+class SuperUserRequiredMixin(AccessMixin):
+    """
+    Mixin to restrict access to superusers. 
+    Redirects unauthorized users to login page or another specified URL.
+    """
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            # Redirect unauthenticated users to login page
+            return redirect('/store/login')  # Change 'login' to your login URL name
+        
+        if not request.user.is_superuser:
+            # Redirect non-superusers to a custom page, like 'home'
+            return redirect('/store/login')  # Change 'home' to the URL name you want
+        
+        # If user is authenticated and is superuser, proceed to the view
+        return super().dispatch(request, *args, **kwargs)
+
 
 # Home page view
-class HomeView(TemplateView):
+class HomeView(SuperUserRequiredMixin, TemplateView):
     template_name = 'inventory/home.html'
 
+
 # Category views
-class CategoryListView(ListView):
+class CategoryListView(SuperUserRequiredMixin, ListView):
     model = Category
     template_name = 'inventory/category_list.html'
     context_object_name = 'categories'
 
-class CategoryCreateView(CreateView):
-    model = Category
-    template_name = 'inventory/category_form.html'
-    fields = ['name', 'description']  # Replace with your Category model fields
-    success_url = reverse_lazy('category-list')
 
-class CategoryUpdateView(UpdateView):
+class CategoryCreateView(SuperUserRequiredMixin, CreateView):
     model = Category
     template_name = 'inventory/category_form.html'
     fields = ['name', 'description']
     success_url = reverse_lazy('category-list')
 
+
+class CategoryUpdateView(SuperUserRequiredMixin, UpdateView):
+    model = Category
+    template_name = 'inventory/category_form.html'
+    fields = ['name', 'description']
+    success_url = reverse_lazy('category-list')
+
+
 # Product views
-class ProductListView(ListView):
+class ProductListView(SuperUserRequiredMixin, ListView):
     model = Product
     template_name = 'inventory/product_list.html'
     context_object_name = 'products'
 
-from django.shortcuts import redirect
-from django.urls import reverse_lazy
-from django.contrib import messages
-from .models import Product, StoreProduct, Store
 
-class ProductCreateView(CreateView):
+class ProductCreateView(SuperUserRequiredMixin, CreateView):
     model = Product
     fields = ['name', 'category', 'description']
     template_name = 'inventory/product_form.html'
@@ -47,50 +72,40 @@ class ProductCreateView(CreateView):
     def form_valid(self, form):
         response = super().form_valid(form)
 
-        # After the product is created, we need to create StoreProduct instances for all stores
-        product = self.object  # This is the product just created
-
-        # Fetch all stores
+        # After the product is created, add it to all stores
+        product = self.object
         stores = Store.objects.all()
 
         for store in stores:
-            # Create a StoreProduct instance for each store, with default price and quantity
             StoreProduct.objects.create(
                 store=store,
                 product=product,
-                price=10.00,  # Default price (you can modify this)
-                quantity=100,  # Default quantity (you can modify this)
+                price=10.00,  # Default price
+                quantity=100,  # Default quantity
             )
 
         messages.success(self.request, "Product created successfully and added to all stores.")
-        return redirect('product-list')  # Redirect to a success page or wherever you need
+        return redirect('product-list')
 
     def get_success_url(self):
         return reverse_lazy('product-list')
 
-class ProductUpdateView(UpdateView):
+
+class ProductUpdateView(SuperUserRequiredMixin, UpdateView):
     model = Product
     form_class = ProductUpdateForm
     template_name = 'inventory/product_update.html'
     context_object_name = 'product'
 
-    def get_object(self):
-        # Only allow access to products within the store of the logged-in user
-        product = super().get_object()
-        stores = product.stores
-       
-        return product
-
     def form_valid(self, form):
-        # Only update stock and price, not category
         product = form.save(commit=False)
         if 'name' in form.changed_data:
             product.name = form.cleaned_data['name']
         product.save()
         return redirect('product-list')
-    
 
-class ProductDeleteView(DeleteView):
+
+class ProductDeleteView(SuperUserRequiredMixin, DeleteView):
     model = Product
     template_name = 'inventory/product_delete.html'
     success_url = reverse_lazy('product-list')
