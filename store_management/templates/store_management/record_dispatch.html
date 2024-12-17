@@ -1,0 +1,79 @@
+{% load widget_tweaks %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Record Dispatch</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+    <div class="container max-w-lg mx-auto py-8">
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div
+                    class="px-4 py-3 rounded-lg shadow-md mb-4 
+                    {% if message.tags == 'error' %}bg-red-500 text-white{% elif message.tags == 'success' %}bg-green-500 text-white{% else %}bg-blue-500 text-white{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Page Title -->
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Record Dispatch</h1>
+        
+        <!-- Form -->
+        <div class="bg-white shadow-lg rounded-lg p-6">
+            {% if form.non_field_errors %}
+                <div class="text-red-500 text-sm mb-4">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <form method="POST" class="space-y-4">
+                {% csrf_token %}
+                
+                <!-- Product Field -->
+                <div>
+                    <label class="block text-gray-700 font-medium mb-1">Product</label>
+                    {{ form.store_product|add_class:"w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" }}
+                    {% if form.store_product.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.store_product.errors }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Quantity Sold Field -->
+                <div>
+                    <label class="block text-gray-700 font-medium mb-1">Quantity Sold</label>
+                    {{ form.quantity_sold|add_class:"w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" }}
+                    {% if form.quantity_sold.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.quantity_sold.errors }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Discount Field -->
+                <div>
+                    <label class="block text-gray-700 font-medium mb-1">Discount</label>
+                    {{ form.discount|add_class:"w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" }}
+                    {% if form.discount.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.discount.errors }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out">
+                    Record Dispatch
+                </button>
+            </form>
+            <!-- Back to Dashboard -->
+            <div class="text-center mt-4">
+                <a href="{% url 'store_manager_dashboard' %}" class="text-blue-600 hover:underline font-medium">
+                    &larr; Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

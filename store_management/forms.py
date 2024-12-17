@@ -1,5 +1,6 @@
 from django import forms
 from inventory.models import StoreProduct
+from .models import Dispatch
 
 class ProductUpdateForm(forms.ModelForm):
     class Meta:
@@ -12,3 +13,9 @@ class ProductUpdateForm(forms.ModelForm):
         if stock < 0:
             raise forms.ValidationError("Stock cannot be negative.")
         return stock
+
+
+class DispatchForm(forms.ModelForm):
+    class Meta:
+        model = Dispatch
+        fields = ["store_product", "quantity_sold", "discount"]
